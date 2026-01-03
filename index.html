@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InsightForge (Day 1)</title>
+    <link rel="stylesheet" href="./styles/main.css" />
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  </head>
+
+  <body>
+    <header class="topbar">
+      <h1>InsightForge</h1>
+      <div class="status" id="status">Ready</div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar">
+        <section class="card">
+          <h2>Dataset</h2>
+
+          <label class="button">
+            Upload CSV
+            <input id="fileInput" type="file" accept=".csv,text/csv" hidden />
+          </label>
+
+          <div class="meta" id="datasetMeta">
+            <p><strong>No dataset loaded</strong></p>
+            <p>Upload a CSV to begin.</p>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Scatter controls</h2>
+
+          <div class="row">
+            <label for="xSelect">X:</label>
+            <select id="xSelect" disabled></select>
+          </div>
+
+          <div class="row">
+            <label for="ySelect">Y:</label>
+            <select id="ySelect" disabled></select>
+          </div>
+
+          <button class="secondary" id="renderBtn" disabled>Render scatter</button>
+
+          <p class="hint">
+            Select columns for the X and Y axes, then click "Render scatter" to
+            generate the plot.
+          </p>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <div class="card">
+          <h2>Preview</h2>
+          <div class="tableWrap">
+            <table id="previewTable">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Scatterplot</h2>
+          <div id="chart" class="chart"></div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>
