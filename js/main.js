@@ -28,7 +28,7 @@ function fillSelect(selectEl, options, selected) {
   }
 }
 
-function renderPreview(dataset, maxRows = 12) {
+function renderPreview(dataset, maxRows = 6) {
   previewHead.innerHTML = "";
   previewBody.innerHTML = "";
 
