@@ -43,19 +43,24 @@ body {
 
 .layout {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: clamp(340px, 28vw, 520px) 1fr;
   gap: 14px;
   padding: 14px;
   height: calc(100vh - 56px);
   overflow: hidden;
 }
 
+.sidebar {
+padding-right: 8px;
+} 
+
 .sidebar,
 .workspace {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .card {
@@ -107,10 +112,21 @@ select:disabled {
 
 .row {
   display: grid;
-  grid-template-columns: 30px 1fr;
+  grid-template-columns: 130px 1fr;
   gap: 10px;
   align-items: center;
   margin-top: 10px;
+}
+
+.row.compact {
+  grid-template-columns: 24px 1fr;
+}
+
+
+.row label{
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 12px;
 }
 
 input[type="number"] {
@@ -197,7 +213,64 @@ tbody td {
 }
 
 @media (max-width: 900px) {
+  html, body {
+    overflow: auto;
+    height: auto;
+  }
+
   .layout {
     grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
+  }
+
+  .sidebar,
+  .workspace {
+    overflow: visible;
   }
 }
+
+/* ---------- Custom Scrollbars (WebKit-based browsers) ---------- */
+.sidebar::-webkit-scrollbar,
+.workspace::-webkit-scrollbar,
+.tableWrap::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-track,
+.workspace::-webkit-scrollbar-track,
+.tableWrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb,
+.workspace::-webkit-scrollbar-thumb,
+.tableWrap::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    rgba(106, 169, 255, 0.55),
+    rgba(106, 169, 255, 0.25)
+  );
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover,
+.workspace::-webkit-scrollbar-thumb:hover,
+.tableWrap::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(106, 169, 255, 0.8),
+    rgba(106, 169, 255, 0.45)
+  );
+}
+
+/* ---------- Firefox ---------- */
+.sidebar,
+.workspace,
+.tableWrap {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(106, 169, 255, 0.45) transparent;
+}
+
