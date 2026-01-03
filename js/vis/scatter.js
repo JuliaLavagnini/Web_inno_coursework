@@ -28,15 +28,20 @@ export function renderScatter({ el, rows, xField, yField }) {
     return;
   }
 
-  const width = el.clientWidth;
+  const width = Math.max(
+    600,
+    Math.floor(el.getBoundingClientRect().width || el.clientWidth || 0)
+  );
   const height = 360;
   const margin = { top: 20, right: 20, bottom: 45, left: 55 };
 
   const svg = d3
     .select(el)
     .append("svg")
-    .attr("width", width)
-    .attr("height", height);
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .style("width", "100%")
+    .style("height", "auto");
 
   const x = d3
     .scaleLinear()
