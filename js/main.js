@@ -1,6 +1,8 @@
 import { subscribe, update, updateUI, setStatus } from "./core/store.js";
 import { parseCsv, detectSchema, coerceNumericRows } from "./data/parser.js";
 import { renderScatter } from "./vis/scatter.js";
+import { minMaxNormalise } from "./data/transform.js";
+
 
 const fileInput = document.getElementById("fileInput");
 const datasetMeta = document.getElementById("datasetMeta");
@@ -12,6 +14,7 @@ const xSelect = document.getElementById("xSelect");
 const ySelect = document.getElementById("ySelect");
 const renderBtn = document.getElementById("renderBtn");
 const chartEl = document.getElementById("chart");
+const normaliseToggle = document.getElementById("normaliseToggle");
 
 function setMetaHTML(html) {
   datasetMeta.innerHTML = html;
@@ -84,6 +87,10 @@ fileInput.addEventListener("change", async (e) => {
   }
 });
 
+normaliseToggle.addEventListener("change", () => {
+  updateUI({ normalise: normaliseToggle.checked });
+});
+
 xSelect.addEventListener("change", () => updateUI({ xField: xSelect.value }));
 ySelect.addEventListener("change", () => updateUI({ yField: ySelect.value }));
 
@@ -107,7 +114,16 @@ subscribe((s) => {
   const ds = s.dataset;
   const schema = s.schema;
 
-  if (!ds) {
+  if (!ds) return;
+  
+  renderPreview(ds);
+
+  const plotDataset = s.ui.normalise ? minMaxNormalise(ds, schema.numeric) : ds;
+  
+  // Auto-render once after load
+  renderScatter({ el: chartEl, rows: plotDataset.rows, xField: s.ui.xField, yField: s.ui.yField });
+
+  if (ds.rows.length === 0 || ds.columns.length === 0) {
     setMetaHTML(`<p><strong>No dataset loaded</strong></p><p>Upload a CSV to begin.</p>`);
     xSelect.disabled = true;
     ySelect.disabled = true;
@@ -124,8 +140,6 @@ subscribe((s) => {
     <p><strong>Categorical columns:</strong> ${schema.categorical.length}</p>
   `);
 
-  renderPreview(ds);
-
   const numeric = schema.numeric;
   const canPlot = numeric.length >= 2;
 
@@ -141,8 +155,6 @@ subscribe((s) => {
     fillSelect(xSelect, numeric, x);
     fillSelect(ySelect, numeric, y);
 
-    // Auto-render once after load
-    renderScatter({ el: chartEl, rows: ds.rows, xField: x, yField: y });
   } else {
     chartEl.textContent = "Need at least 2 numeric columns to plot.";
   }

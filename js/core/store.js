@@ -5,6 +5,7 @@ const state = {
   ui: {
     xField: null,
     yField: null,
+    normalise: false
   },
 };
 

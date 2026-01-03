@@ -3,7 +3,7 @@
  * @param {string[]} numericCols
  * @returns {{ columns: string[], rows: Object[] }}
  */
-export function minMaxNormalize(dataset, numericCols) {
+export function minMaxNormalise(dataset, numericCols) {
   const mins = {};
   const maxs = {};
 
