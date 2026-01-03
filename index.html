@@ -48,12 +48,31 @@
             <label for="normaliseToggle">Normalise numeric columns (0-1)</label>
           </div>
 
-          <button class="secondary" id="renderBtn" disabled>Render scatter</button>
+          <button class="secondary" id="renderBtn" disabled>
+            Render scatter
+          </button>
 
           <p class="hint">
             Select columns for the X and Y axes, then click "Render scatter" to
             generate the plot.
           </p>
+        </section>
+        <section class="card">
+          <h2>Clustering (K-Means)</h2>
+          <div class="row">
+            <label for="kInput">Number of clusters (k):</label>
+            <input type="number" id="kInput" value="3" min="2" max="10" />
+          </div>
+          <label for="featureSelect" class="label"
+            >Features (2-8 recommended)</label
+          >
+          <select id="featureSelect" multiple size="8" disabled></select>
+          <button class="secondary" id="runKMeansBtn" disabled>
+            Perform K-Means Clustering
+          </button>
+          <p class="hint" id="kmeansStatus">
+            Select features to use for clustering, set the number of clusters,
+            then click "Perform K-Means Clustering".
         </section>
       </aside>
 
