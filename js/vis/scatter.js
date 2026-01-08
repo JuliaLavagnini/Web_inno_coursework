@@ -3,7 +3,7 @@ function clear(container) {
   while (container.firstChild) container.removeChild(container.firstChild);
 }
 
-export function renderScatter({ el, rows, xField, yField }) {
+export function renderScatter({ el, rows, xField, yField, labels = null }) {
   if (!window.d3) {
     el.textContent = "D3 not found. Check the script tag in index.html.";
     return;
@@ -18,11 +18,11 @@ export function renderScatter({ el, rows, xField, yField }) {
 
   const d3 = window.d3;
 
-  // Filter to numeric-only points
-  const points = rows
-    .map((r) => ({ x: r[xField], y: r[yField] }))
-    .filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y));
+  const color = labels ? d3.scaleOrdinal(d3.schemeTableau10) : null;
 
+  const points = rows
+    .map((r, i) => ({ x: r[xField], y: r[yField], i }))
+    .filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y));
   if (points.length < 5) {
     el.textContent = "Not enough numeric points to plot (need at least ~5).";
     return;
@@ -107,13 +107,27 @@ export function renderScatter({ el, rows, xField, yField }) {
     .attr("cx", (d) => x(d.x))
     .attr("cy", (d) => y(d.y))
     .attr("r", 3.2)
-    .attr("fill", "rgba(106,169,255,0.6)")
+    .attr("fill", (d) => {
+      if (!labels) return "rgba(106,169,255,0.85)";
+      const lab = labels[d.i];
+      if (lab === -1 || lab === undefined || lab === null)
+        return "rgba(169,172,181,0.55)";
+      return color(lab);
+    })
+    .attr("fill-opacity", labels ? 0.8 : 0.65)
+
     .on("mouseenter", (event, d) => {
+      const clusterLine = labels
+        ? `<div><strong>Cluster</strong>: ${labels[d.i]}</div>`
+        : "";
+
       tip.style("opacity", 1).html(
         `<div><strong>${xField}</strong>: ${d.x}</div>
-         <div><strong>${yField}</strong>: ${d.y}</div>`
+     <div><strong>${yField}</strong>: ${d.y}</div>
+     ${clusterLine}`
       );
     })
+
     .on("mousemove", (event) => {
       const rect = el.getBoundingClientRect();
       tip

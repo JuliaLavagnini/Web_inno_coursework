@@ -1,20 +1,3 @@
-/**
- * K-Means Web Worker
- * Runs clustering off the main thread to keep UI responsive.
- *
- * Input:
- *  - rows: array of objects (dataset rows)
- *  - features: string[] (numeric column names)
- *  - k: number
- *  - maxIter: number
- *
- * Output:
- *  - labels: number[] cluster label per row index
- *  - centroids: number[][]
- *  - iterations: number
- *  - inertia: number
- *  - counts: number[] per cluster
- */
 self.onmessage = (e) => {
   const { rows, features, k, maxIter = 30 } = e.data;
 

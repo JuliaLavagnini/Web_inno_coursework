@@ -135,6 +135,61 @@ renderBtn.addEventListener("click", () => {
   });
 });
 
+runKMeansBtn.addEventListener("click", () => {
+  const s = window.__APP_STATE;
+  if (!s?.dataset || !s?.schema) return;
+
+  const features = getSelectedFeatures();
+  if (features.length < 2) {
+    kmeansStatus.textContent = "Please select at least 2 features.";
+    return;
+  }
+  if (features.length > 8) {
+    kmeansStatus.textContent =
+      "Please select 2–8 features (recommended for clarity).";
+    return;
+  }
+
+  const k = Math.max(2, Math.min(10, Number.parseInt(kInput.value, 10) || 3));
+
+  const plotDataset = s.ui.normalise
+    ? minMaxNormalise(s.dataset, s.schema.numeric)
+    : s.dataset;
+
+  kmeansStatus.textContent = "Running k-means in Web Worker…";
+  runKMeansBtn.disabled = true;
+
+  const worker = getKMeansWorker();
+  worker.onmessage = (ev) => {
+    const msg = ev.data;
+    runKMeansBtn.disabled = false;
+
+    if (!msg.ok) {
+      kmeansStatus.textContent = `Error: ${msg.error}`;
+      updateUI({ kmeansLabels: null, kmeans: null });
+      return;
+    }
+
+    const { labels, iterations, inertia, counts } = msg;
+
+    kmeansStatus.textContent =
+      `Done: k=${k}, iters=${iterations}, inertia=${inertia.toFixed(2)} | ` +
+      counts.map((c, i) => `C${i}:${c}`).join("  ");
+
+    updateUI({
+      kmeansLabels: labels,
+      kmeans: { k, iterations, inertia, counts, features },
+    });
+  };
+
+  worker.postMessage({
+    rows: plotDataset.rows,
+    features,
+    k,
+    maxIter: 30,
+  });
+});
+
 subscribe((s) => {
   window.__APP_STATE = s;
 
@@ -152,6 +207,7 @@ subscribe((s) => {
     rows: plotDataset.rows,
     xField: s.ui.xField,
     yField: s.ui.yField,
+    labels: s.ui.kmeansLabels ?? null,
   });
 
   if (ds.rows.length === 0 || ds.columns.length === 0) {
@@ -224,59 +280,4 @@ subscribe((s) => {
   } else {
     chartEl.textContent = "Need at least 2 numeric columns to plot.";
   }
-
-  runKMeansBtn.addEventListener("click", () => {
-    const s = window.__APP_STATE;
-    if (!s?.dataset || !s?.schema) return;
-
-    const features = getSelectedFeatures();
-    if (features.length < 2) {
-      kmeansStatus.textContent = "Please select at least 2 features.";
-      return;
-    }
-    if (features.length > 8) {
-      kmeansStatus.textContent =
-        "Please select 2–8 features (recommended for clarity).";
-      return;
-    }
-
-    const k = Math.max(2, Math.min(10, Number.parseInt(kInput.value, 10) || 3));
-
-    const plotDataset = s.ui.normalise
-      ? minMaxNormalise(s.dataset, s.schema.numeric)
-      : s.dataset;
-
-    kmeansStatus.textContent = "Running k-means in Web Worker…";
-    runKMeansBtn.disabled = true;
-
-    const worker = getKMeansWorker();
-    worker.onmessage = (ev) => {
-      const msg = ev.data;
-      runKMeansBtn.disabled = false;
-
-      if (!msg.ok) {
-        kmeansStatus.textContent = `Error: ${msg.error}`;
-        updateUI({ kmeansLabels: null, kmeans: null });
-        return;
-      }
-
-      const { labels, iterations, inertia, counts } = msg;
-
-      kmeansStatus.textContent =
-        `Done: k=${k}, iters=${iterations}, inertia=${inertia.toFixed(2)} | ` +
-        counts.map((c, i) => `C${i}:${c}`).join("  ");
-
-      updateUI({
-        kmeansLabels: labels,
-        kmeans: { k, iterations, inertia, counts, features },
-      });
-    };
-
-    worker.postMessage({
-      rows: plotDataset.rows,
-      features,
-      k,
-      maxIter: 30,
-    });
-  });
 });
