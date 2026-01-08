@@ -20,6 +20,35 @@ const featureSelect = document.getElementById("featureSelect");
 const runKMeansBtn = document.getElementById("runKMeansBtn");
 const kmeansStatus = document.getElementById("kmeansStatus");
 
+const helpBtn = document.getElementById("helpBtn");
+const helpModal = document.getElementById("helpModal");
+const helpCloseBtn = document.getElementById("helpCloseBtn");
+
+function openHelp() {
+  helpModal.classList.add("open");
+  helpModal.setAttribute("aria-hidden", "false");
+}
+
+function closeHelp() {
+  helpModal.classList.remove("open");
+  helpModal.setAttribute("aria-hidden", "true");
+}
+
+helpBtn.addEventListener("click", openHelp);
+helpCloseBtn.addEventListener("click", closeHelp);
+
+// Close when clicking outside the modal content
+helpModal.addEventListener("click", (e) => {
+  if (e.target === helpModal) closeHelp();
+});
+
+// Close with Escape key
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && helpModal.classList.contains("open")) {
+    closeHelp();
+  }
+});
+
 function setMetaHTML(html) {
   datasetMeta.innerHTML = html;
 }

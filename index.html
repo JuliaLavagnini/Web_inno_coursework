@@ -24,6 +24,10 @@
             <input id="fileInput" type="file" accept=".csv,text/csv" hidden />
           </label>
 
+          <button class="secondary" id="helpBtn" type="button">
+            Dataset help
+          </button>
+
           <div class="meta" id="datasetMeta">
             <p><strong>No dataset loaded</strong></p>
             <p>Upload a CSV to begin.</p>
@@ -94,6 +98,82 @@
         </div>
       </section>
     </main>
+
+    <div class="modalOverlay" id="helpModal" aria-hidden="true">
+      <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="helpTitle"
+      >
+        <div class="modalHeader">
+          <h2 id="helpTitle">What CSV files work best?</h2>
+          <button
+            class="iconBtn"
+            id="helpCloseBtn"
+            type="button"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="modalBody">
+          <p>
+            InsightForge accepts <strong>.csv</strong> files with a
+            <strong>header row</strong>. The app automatically detects numeric
+            columns and uses them for plotting and clustering.
+          </p>
+
+          <h3>Recommended CSV format</h3>
+          <ul>
+            <li><strong>Row 1 must be column names</strong> (headers)</li>
+            <li>Use commas to separate values</li>
+            <li>
+              Include <strong>at least 2 numeric columns</strong> (for
+              scatterplot)
+            </li>
+            <li>For K-means, select <strong>2–8 numeric features</strong></li>
+          </ul>
+
+          <h3>Example</h3>
+          <pre class="codeBlock">
+age,studytime,G1,G2,G3
+18,2,10,12,13
+17,3,11,11,12</pre
+          >
+          <p>
+            <strong>Example dataset:</strong><br />
+            <a
+              href="https://archive.ics.uci.edu/ml/datasets/Student+Performance"
+              target="_blank"
+              rel="noopener"
+              style="color: var(--accent)"
+            >
+              Student Performance Dataset (UCI Machine Learning Repository)
+            </a>
+          </p>
+
+          <h3>Common issues</h3>
+          <ul>
+            <li>
+              If no numeric columns are detected, check for non-numeric text
+              (e.g., "12 points").
+            </li>
+            <li>
+              If your CSV uses semicolons (;), convert to comma-separated
+              format.
+            </li>
+            <li>Very large datasets may be truncated for performance.</li>
+          </ul>
+
+          <p class="smallMuted">
+            Tip: Try the included student performance dataset to see the
+            expected structure.
+          </p>
+        </div>
+      </div>
+    </div>
 
     <script type="module" src="./js/main.js"></script>
   </body>

@@ -51,8 +51,8 @@ body {
 }
 
 .sidebar {
-padding-right: 8px;
-} 
+  padding-right: 8px;
+}
 
 .sidebar,
 .workspace {
@@ -122,8 +122,7 @@ select:disabled {
   grid-template-columns: 24px 1fr;
 }
 
-
-.row label{
+.row label {
   white-space: nowrap;
   color: var(--muted);
   font-size: 12px;
@@ -212,8 +211,91 @@ tbody td {
   overflow: hidden;
 }
 
+/* Modal (Dataset Help) */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 999;
+}
+
+.modalOverlay.open {
+  display: flex;
+}
+
+.modal {
+  width: min(680px, 100%);
+  max-height: 85vh;
+  overflow: auto;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--panel), var(--panel2));
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 14px 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text);
+  opacity: 0.95;
+}
+
+.iconBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.modalBody {
+  padding: 14px;
+  color: #cfd2da;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.modalBody h3 {
+  margin: 14px 0 8px 0;
+  font-size: 13px;
+  color: var(--text);
+  opacity: 0.9;
+}
+
+.codeBlock {
+  margin: 10px 0 0 0;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(12, 15, 22, 0.6);
+  color: #e8e8ea;
+  font-size: 12px;
+  overflow: auto;
+}
+
+.smallMuted {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 @media (max-width: 900px) {
-  html, body {
+  html,
+  body {
     overflow: auto;
     height: auto;
   }
@@ -273,4 +355,3 @@ tbody td {
   scrollbar-width: thin;
   scrollbar-color: rgba(106, 169, 255, 0.45) transparent;
 }
-

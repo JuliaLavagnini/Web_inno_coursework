@@ -63,7 +63,7 @@ A simple reactive store pattern is used so that UI components update automatical
 ## Dataset Used for Demonstration
 
 The application is demonstrated using the Student Performance Dataset **(UCI Machine Learning Repository)**.
-This [dataset] is used solely for educational purposes.(https://archive.ics.uci.edu/dataset/320/student+performance)
+This [dataset] is used solely for educational purposes (https://archive.ics.uci.edu/dataset/320/student+performance).
 
 ---
 
