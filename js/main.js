@@ -15,6 +15,12 @@ const renderBtn = document.getElementById("renderBtn");
 const chartEl = document.getElementById("chart");
 const normaliseToggle = document.getElementById("normaliseToggle");
 
+const kInput = document.getElementById("kInput");
+const featureSelect = document.getElementById("featureSelect");
+const runKMeansBtn = document.getElementById("runKMeansBtn");
+const kmeansStatus = document.getElementById("kmeansStatus");
+
+
 function setMetaHTML(html) {
   datasetMeta.innerHTML = html;
 }
@@ -173,4 +179,28 @@ subscribe((s) => {
   } else {
     chartEl.textContent = "Need at least 2 numeric columns to plot.";
   }
+
+const canCluster = schema.numeric.length >= 2;
+
+featureSelect.disabled = !canCluster;
+runKMeansBtn.disabled = !canCluster;
+
+if (canCluster) {
+  featureSelect.innerHTML = "";
+  for (const col of schema.numeric) {
+    const opt = document.createElement("option");
+    opt.value = col;
+    opt.textContent = col;
+    featureSelect.appendChild(opt);
+  }
+  kmeansStatus.textContent = "Select 2–8 features and run clustering.";
+} else {
+  kmeansStatus.textContent = "Load a dataset with numeric columns to enable clustering.";
+}
+
+runKMeansBtn.addEventListener("click", () => {
+  kmeansStatus.textContent = "K-means clustering is outlined as future work (not executed in this submission build).";
+});
+
+
 });
