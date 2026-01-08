@@ -1,12 +1,12 @@
-## Project Title
-
-InsightForge – Interactive Data Exploration Tool
+# InsightForge – Interactive Data Exploration Tool
 
 ## Overview
 
-InsightForge is a browser-based web application that allows users to upload CSV datasets and explore numeric relationships through interactive data visualisation. The application focuses on advanced JavaScript programming, reactive UI design, and data preprocessing techniques commonly used in data science and machine learning workflows.
+InsightForge is a browser-based data exploration and visual analytics tool that allows users to upload CSV datasets and explore numeric relationships through interactive visualisation and unsupervised machine learning techniques.
 
-The project was developed for the Web Innovations module and exceeds static website requirements by supporting real-time interaction, dynamic rendering, and client-side data processing.
+The application focuses on advanced JavaScript programming, reactive UI design, and client-side data processing, reflecting workflows commonly used in data science and machine learning. All computation is performed locally in the browser without external services.
+
+This project was developed for the Web Innovations module and exceeds static website requirements by supporting real-time interaction, dynamic rendering, and performance-aware computation.
 
 ---
 
@@ -23,6 +23,12 @@ The project was developed for the Web Innovations module and exceeds static webs
 * Interactive scatterplot with dynamic X and Y axis selection
 
 * Optional min–max normalisation (0–1) for numeric features
+
+* K-Means clustering on selected numeric features (2–8 recommended)
+
+* Web Worker–based clustering to prevent UI blocking
+
+* Cluster-aware scatterplot colouring and tooltips
 
 * Responsive, dark-themed interface optimised for different screen sizes
 
@@ -42,9 +48,11 @@ The application is implemented using vanilla JavaScript (ES6 modules) and D3.js 
 
 * vis/ – D3-based scatterplot rendering
 
+* workers/ – Web Worker for K-Means clustering
+
 * main.js – application orchestration and event handling
 
-A simple reactive store pattern is used so that UI components update automatically when application state changes.
+A lightweight reactive store pattern is used so that UI components automatically update when application state changes.
 
 --- 
 
@@ -58,12 +66,42 @@ A simple reactive store pattern is used so that UI components update automatical
 
 * Optional min–max normalisation rescales numeric values to a 0–1 range, supporting fair comparison across features
 
+* Computationally intensive clustering is executed in a Web Worker to maintain interface responsiveness
+
 ---
+
+## K-Means Clustering
+
+InsightForge includes a full implementation of K-Means clustering, executed off the main UI thread.
+
+* Users select 2–8 numeric features for clustering
+
+* The number of clusters (k) can be configured (2–10)
+
+* Clustering runs asynchronously in a Web Worker
+
+* Results include cluster labels, inertia, iteration count, and cluster sizes
+
+* Scatterplot points are coloured dynamically based on cluster membership
+
+This demonstrates performance-aware client-side machine learning using modern web technologies.
+
+--- 
 
 ## Dataset Used for Demonstration
 
-The application is demonstrated using the Student Performance Dataset **(UCI Machine Learning Repository)**.
-This [dataset] is used solely for educational purposes (https://archive.ics.uci.edu/dataset/320/student+performance).
+The project includes a ready-to-use example dataset:
+
+* student-mat-fixed.csv (included in the repository)
+
+This file is adapted from the Student Performance Dataset provided by the
+UCI Machine Learning Repository:
+
+🔗 https://archive.ics.uci.edu/dataset/320/student+performance
+
+The dataset contains numeric features such as G1, G2, G3, studytime, and failures, making it suitable for both scatterplot visualisation and K-Means clustering.
+
+The dataset is used solely for educational and demonstration purposes.
 
 ---
 
@@ -71,23 +109,25 @@ This [dataset] is used solely for educational purposes (https://archive.ics.uci.
 
 * CSV files must include a header row
 
+* The application assumes comma-separated values
+
 * Very large datasets may be truncated for performance reasons
 
-* Only numeric columns can be plotted in the scatterplot
-
-* Clustering functionality is outlined in the interface but not executed in this submission build
+* K-Means implementation is intended for exploratory analysis rather than large-scale production use
 
 ---
 
 ## Future Work
 
-* Full implementation of K-Means clustering on selected numeric features
+* Additional clustering algorithms
 
-* Offloading heavy computations to Web Workers
+* Dimensionality reduction (e.g. PCA)
 
-* Additional chart types (e.g., histograms, box plots)
+* Additional chart types (histograms, box plots)
 
-* Enhanced accessibility and keyboard navigation
+* Export of clustered datasets
+
+* GPU-accelerated rendering for large datasets
 
 ---
 
@@ -99,4 +139,4 @@ This [dataset] is used solely for educational purposes (https://archive.ics.uci.
 
 3. Use Live Server (or any local server) to run index.html
 
-4. Upload a CSV file to begin exploring the data
+4. Upload a CSV file (or use student-mat-fixed.csv) to begin exploring the data
