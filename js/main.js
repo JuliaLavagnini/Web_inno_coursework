@@ -20,7 +20,6 @@ const featureSelect = document.getElementById("featureSelect");
 const runKMeansBtn = document.getElementById("runKMeansBtn");
 const kmeansStatus = document.getElementById("kmeansStatus");
 
-
 function setMetaHTML(html) {
   datasetMeta.innerHTML = html;
 }
@@ -83,6 +82,8 @@ fileInput.addEventListener("change", async (e) => {
         xField: schema.numeric[0] ?? null,
         yField: schema.numeric[1] ?? schema.numeric[0] ?? null,
         normalise: false,
+        kmeansLabels: null,
+        kmeans: null,
       },
     });
 
@@ -95,6 +96,21 @@ fileInput.addEventListener("change", async (e) => {
     fileInput.value = "";
   }
 });
+
+let kmeansWorker = null;
+function getKMeansWorker() {
+  if (!kmeansWorker) {
+    kmeansWorker = new Worker(
+      new URL("./workers/kmeans.worker.js", import.meta.url),
+      { type: "module" }
+    );
+  }
+  return kmeansWorker;
+}
+
+function getSelectedFeatures() {
+  return Array.from(featureSelect.selectedOptions).map((o) => o.value);
+}
 
 normaliseToggle.addEventListener("change", () => {
   updateUI({ normalise: normaliseToggle.checked });
@@ -119,9 +135,7 @@ renderBtn.addEventListener("click", () => {
   });
 });
 
-// Reactively update UI when state changes
 subscribe((s) => {
-  // Keep last state available for quick access
   window.__APP_STATE = s;
 
   const ds = s.dataset;
@@ -133,7 +147,6 @@ subscribe((s) => {
 
   const plotDataset = s.ui.normalise ? minMaxNormalise(ds, schema.numeric) : ds;
 
-  // Auto-render once after load
   renderScatter({
     el: chartEl,
     rows: plotDataset.rows,
@@ -165,6 +178,38 @@ subscribe((s) => {
   const numeric = schema.numeric;
   const canPlot = numeric.length >= 2;
 
+  const canCluster = schema.numeric.length >= 2;
+  featureSelect.disabled = !canCluster;
+  runKMeansBtn.disabled = !canCluster;
+
+  if (canCluster) {
+    const prev = new Set(getSelectedFeatures());
+    featureSelect.innerHTML = "";
+
+    for (const col of schema.numeric) {
+      const opt = document.createElement("option");
+      opt.value = col;
+      opt.textContent = col;
+      if (prev.has(col)) opt.selected = true;
+      featureSelect.appendChild(opt);
+    }
+
+    const selected = getSelectedFeatures();
+    if (selected.length < 2) {
+      const x = s.ui.xField ?? schema.numeric[0];
+      const y = s.ui.yField ?? schema.numeric[1] ?? schema.numeric[0];
+      for (const opt of featureSelect.options) {
+        if (opt.value === x || opt.value === y) opt.selected = true;
+      }
+    }
+
+    kmeansStatus.textContent =
+      "Select 2–8 features, choose k, then run clustering.";
+  } else {
+    kmeansStatus.textContent =
+      "Load a dataset with at least 2 numeric columns to enable clustering.";
+  }
+
   xSelect.disabled = !canPlot;
   ySelect.disabled = !canPlot;
   renderBtn.disabled = !canPlot;
@@ -180,27 +225,58 @@ subscribe((s) => {
     chartEl.textContent = "Need at least 2 numeric columns to plot.";
   }
 
-const canCluster = schema.numeric.length >= 2;
+  runKMeansBtn.addEventListener("click", () => {
+    const s = window.__APP_STATE;
+    if (!s?.dataset || !s?.schema) return;
 
-featureSelect.disabled = !canCluster;
-runKMeansBtn.disabled = !canCluster;
+    const features = getSelectedFeatures();
+    if (features.length < 2) {
+      kmeansStatus.textContent = "Please select at least 2 features.";
+      return;
+    }
+    if (features.length > 8) {
+      kmeansStatus.textContent =
+        "Please select 2–8 features (recommended for clarity).";
+      return;
+    }
 
-if (canCluster) {
-  featureSelect.innerHTML = "";
-  for (const col of schema.numeric) {
-    const opt = document.createElement("option");
-    opt.value = col;
-    opt.textContent = col;
-    featureSelect.appendChild(opt);
-  }
-  kmeansStatus.textContent = "Select 2–8 features and run clustering.";
-} else {
-  kmeansStatus.textContent = "Load a dataset with numeric columns to enable clustering.";
-}
+    const k = Math.max(2, Math.min(10, Number.parseInt(kInput.value, 10) || 3));
 
-runKMeansBtn.addEventListener("click", () => {
-  kmeansStatus.textContent = "K-means clustering is outlined as future work (not executed in this submission build).";
-});
+    const plotDataset = s.ui.normalise
+      ? minMaxNormalise(s.dataset, s.schema.numeric)
+      : s.dataset;
 
+    kmeansStatus.textContent = "Running k-means in Web Worker…";
+    runKMeansBtn.disabled = true;
 
+    const worker = getKMeansWorker();
+    worker.onmessage = (ev) => {
+      const msg = ev.data;
+      runKMeansBtn.disabled = false;
+
+      if (!msg.ok) {
+        kmeansStatus.textContent = `Error: ${msg.error}`;
+        updateUI({ kmeansLabels: null, kmeans: null });
+        return;
+      }
+
+      const { labels, iterations, inertia, counts } = msg;
+
+      kmeansStatus.textContent =
+        `Done: k=${k}, iters=${iterations}, inertia=${inertia.toFixed(2)} | ` +
+        counts.map((c, i) => `C${i}:${c}`).join("  ");
+
+      updateUI({
+        kmeansLabels: labels,
+        kmeans: { k, iterations, inertia, counts, features },
+      });
+    };
+
+    worker.postMessage({
+      rows: plotDataset.rows,
+      features,
+      k,
+      maxIter: 30,
+    });
+  });
 });
