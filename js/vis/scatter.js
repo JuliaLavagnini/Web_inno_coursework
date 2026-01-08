@@ -106,8 +106,8 @@ export function renderScatter({ el, rows, xField, yField }) {
     .join("circle")
     .attr("cx", (d) => x(d.x))
     .attr("cy", (d) => y(d.y))
-    .attr("r", 3)
-    .attr("fill", "rgba(106,169,255,0.85)")
+    .attr("r", 3.2)
+    .attr("fill", "rgba(106,169,255,0.6)")
     .on("mouseenter", (event, d) => {
       tip.style("opacity", 1).html(
         `<div><strong>${xField}</strong>: ${d.x}</div>
