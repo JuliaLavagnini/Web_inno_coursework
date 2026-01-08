@@ -3,7 +3,6 @@ import { parseCsv, detectSchema, coerceNumericRows } from "./data/parser.js";
 import { renderScatter } from "./vis/scatter.js";
 import { minMaxNormalise } from "./data/transform.js";
 
-
 const fileInput = document.getElementById("fileInput");
 const datasetMeta = document.getElementById("datasetMeta");
 const previewTable = document.getElementById("previewTable");
@@ -74,7 +73,11 @@ fileInput.addEventListener("change", async (e) => {
       rawText: text,
       dataset: numericDataset,
       schema,
-      ui: { xField: schema.numeric[0] ?? null, yField: schema.numeric[1] ?? schema.numeric[0] ?? null },
+      ui: {
+        xField: schema.numeric[0] ?? null,
+        yField: schema.numeric[1] ?? schema.numeric[0] ?? null,
+        normalise: false,
+      },
     });
 
     setStatus("Dataset loaded");
@@ -115,16 +118,23 @@ subscribe((s) => {
   const schema = s.schema;
 
   if (!ds) return;
-  
+
   renderPreview(ds);
 
   const plotDataset = s.ui.normalise ? minMaxNormalise(ds, schema.numeric) : ds;
-  
+
   // Auto-render once after load
-  renderScatter({ el: chartEl, rows: plotDataset.rows, xField: s.ui.xField, yField: s.ui.yField });
+  renderScatter({
+    el: chartEl,
+    rows: plotDataset.rows,
+    xField: s.ui.xField,
+    yField: s.ui.yField,
+  });
 
   if (ds.rows.length === 0 || ds.columns.length === 0) {
-    setMetaHTML(`<p><strong>No dataset loaded</strong></p><p>Upload a CSV to begin.</p>`);
+    setMetaHTML(
+      `<p><strong>No dataset loaded</strong></p><p>Upload a CSV to begin.</p>`
+    );
     xSelect.disabled = true;
     ySelect.disabled = true;
     renderBtn.disabled = true;
@@ -134,7 +144,9 @@ subscribe((s) => {
   }
 
   setMetaHTML(`
-    <p><strong>Rows:</strong> ${ds.rows.length}${ds.truncated ? " (truncated)" : ""}</p>
+    <p><strong>Rows:</strong> ${ds.rows.length}${
+    ds.truncated ? " (truncated)" : ""
+  }</p>
     <p><strong>Columns:</strong> ${ds.columns.length}</p>
     <p><strong>Numeric columns:</strong> ${schema.numeric.length}</p>
     <p><strong>Categorical columns:</strong> ${schema.categorical.length}</p>
@@ -154,7 +166,6 @@ subscribe((s) => {
 
     fillSelect(xSelect, numeric, x);
     fillSelect(ySelect, numeric, y);
-
   } else {
     chartEl.textContent = "Need at least 2 numeric columns to plot.";
   }
