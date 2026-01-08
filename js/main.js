@@ -101,9 +101,13 @@ renderBtn.addEventListener("click", () => {
   const s = window.__APP_STATE;
   if (!s?.dataset || !s?.schema) return;
 
+  const plotDataset = s.ui.normalise
+    ? minMaxNormalise(s.dataset, s.schema.numeric)
+    : s.dataset;
+
   renderScatter({
     el: chartEl,
-    rows: s.dataset.rows,
+    rows: plotDataset.rows,
     xField: s.ui.xField,
     yField: s.ui.yField,
   });
